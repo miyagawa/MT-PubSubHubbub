@@ -10,6 +10,7 @@ use base qw( MT::Plugin );
 our $VERSION = "0.01";
 
 use LWP::UserAgent;
+use MT::Template;
 
 my $plugin; $plugin = MT::Plugin::PubSubHubbub->new({
     name => 'PubSubHubbub',
