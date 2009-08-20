@@ -50,7 +50,7 @@ sub send_ping {
     my @hubs = $plugin->get_config_value('hubs', "blog:" . $blog->id) =~ /(\S+)/g;
     for my $hub (@hubs) {
         my $res = $ua->post($hub, { "hub.mode" => "publish", "hub.url" => $feed_url });
-        MT->log({ level => 'debug', message => "Pinged $hub: " . $res->status_line });
+        MT->log("Pinged $hub: " . $res->status_line);
     }
 }
 
