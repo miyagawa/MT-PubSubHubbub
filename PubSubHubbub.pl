@@ -24,7 +24,7 @@ my $plugin; $plugin = MT::Plugin::PubSubHubbub->new({
     ]),
     registry => {
         callbacks => {
-            'cms_post_save.entry', sub { $plugin->send_ping(@_) },
+            'rebuild', sub { $plugin->send_ping(@_) },
         },
         tags => {
             function => {
@@ -37,9 +37,7 @@ my $plugin; $plugin = MT::Plugin::PubSubHubbub->new({
 MT->add_plugin($plugin);
 
 sub send_ping {
-    my($plugin, $cb, $app, $entry) = @_;
-
-    my $blog = $entry->blog;
+    my($plugin, $cb, $blog) = @_;
 
     my $ua = LWP::UserAgent->new(agent => join("/", $plugin->name, $plugin->version));
     my $tmpl = MT::Template->new_string(\'<$mt:Link template="feed_recent"$>');
