@@ -1,0 +1,7 @@
+This is PubSubHubbub plugin for Movable Type 4 or later.
+
+You need to configure Hub URLs in your per-blog preference page, and then insert
+
+    <$mt:PubSubHubbubLinks$>
+
+in your 'Feed - Recent Entries' template, probably after '<link rel="self".../>'.
