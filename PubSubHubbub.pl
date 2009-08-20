@@ -9,9 +9,6 @@ use base qw( MT::Plugin );
 
 our $VERSION = "0.01";
 
-use LWP::UserAgent;
-use MT::Template;
-
 my $plugin; $plugin = MT::Plugin::PubSubHubbub->new({
     name => 'PubSubHubbub',
     version => $VERSION,
@@ -39,13 +36,17 @@ MT->add_plugin($plugin);
 sub send_ping {
     my($plugin, $cb, $blog) = @_;
 
-    my $ua = LWP::UserAgent->new(agent => join("/", $plugin->name, $plugin->version));
+    my @hubs = $plugin->get_config_value('hubs', "blog:" . $blog->id) =~ /(\S+)/g;
+    return unless @hubs;
+
+    my $ua = MT->new_ua({ agent => join("/", $plugin->name, $plugin->version) });
+
+    require MT::Template;
     my $tmpl = MT::Template->new_string(\'<$mt:Link template="feed_recent"$>');
     $tmpl->context->stash(blog => $blog);
     my $feed_url = $tmpl->build
         or die "Can't get feed URL: ", $tmpl->errstr;
 
-    my @hubs = $plugin->get_config_value('hubs', "blog:" . $blog->id) =~ /(\S+)/g;
     for my $hub (@hubs) {
         my $res = $ua->post($hub, { "hub.mode" => "publish", "hub.url" => $feed_url });
         MT->log("Pinged $hub: " . $res->status_line);
