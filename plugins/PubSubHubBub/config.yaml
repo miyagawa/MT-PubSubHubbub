@@ -1,0 +1,18 @@
+name: 'PubSubHubbub'
+version: 0.1
+description: 'Pings feed updates to PubSubHubbub hub(s).'
+author_name: 'Tatsuhiko Miyagawa'
+author_link: 'http://bulknews.typepad.com/'
+blog_config_template: 'config.tmpl'
+settings:
+  hubs:
+    default: ''
+    scope: blog
+
+callbacks:
+  rebuild: $PubSubHubBub::PubSubHubBub::Plugin::send_ping
+
+tags:
+  function:
+    PubSubHubbubLinks: $PubSubHubBub::PubSubHubBub::Plugin::_hdlr_link_tags
+
