@@ -4,22 +4,22 @@ use strict;
 use warnings;
 
 sub send_ping {
-    my($cb, $blog) = @_;
-    my $plugin = MT->component('PubSubHubBub');
+    my($cb, %param) = @_;
 
-    my @hubs = $plugin->get_config_value('hubs', "blog:" . $blog->id) =~ /(\S+)/g;
-    return unless @hubs;
-
-    my $ua = MT->new_ua({ agent => join("/", $plugin->name, $plugin->version) });
-    my $link = '<$mt:Link template="feed_recent"$>';
-    my $tmpl = MT->model('template')->new_string(\$link);
-    $tmpl->context->stash(blog => $blog);
-    my $feed_url = $tmpl->build
-        or die "Can't get feed URL: ", $tmpl->errstr;
-
-    for my $hub (@hubs) {
-        my $res = $ua->post($hub, { "hub.mode" => "publish", "hub.url" => $feed_url });
-        MT->log("Pinged $hub: " . $res->status_line);
+    my $tmpl = $param{template};
+    if ($tmpl && $tmpl->identifier eq 'feed_recent') {
+        my $blog = $param{blog};
+        my $plugin = MT->component('PubSubHubBub');
+        my @hubs = $plugin->get_config_value('hubs', "blog:" . $blog->id) =~ /(\S+)/g;
+        return unless @hubs;
+        my $ua = MT->new_ua({ agent => join("/", $plugin->name, $plugin->version) });
+        my $feed_url = $blog->site_url;
+        $feed_url .= '/' unless $feed_url =~ m!/$!;
+        $feed_url .= $tmpl->outfile;
+        for my $hub (@hubs) {
+            my $res = $ua->post($hub, { "hub.mode" => "publish", "hub.url" => $feed_url });
+            MT->log("Pinged $hub: " . $res->status_line);
+        }
     }
 }
 
