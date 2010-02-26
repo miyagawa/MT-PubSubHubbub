@@ -6,8 +6,15 @@ use warnings;
 sub send_ping {
     my($cb, $blog) = @_;
     my $plugin = MT->component('PubSubHubBub');
-
-    my @hubs = $plugin->get_config_value('hubs', "blog:" . $blog->id) =~ /(\S+)/g;
+    unless ($blog) {
+        if (MT->config->DebugMode > 0) {
+            MT->log({ message => 'No blog context was passed to send_ping.' });
+        }
+        return;
+    }
+    my $hubstr = $plugin->get_config_value('hubs', "blog:" . $blog->id);
+    return unless $hubstr;
+    my @hubs = ($hubstr =~ /(\S+)/g);
     return unless @hubs;
 
     my $ua = MT->new_ua({ agent => join("/", $plugin->name, $plugin->version) });
